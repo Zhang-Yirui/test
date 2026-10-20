@@ -8,9 +8,31 @@ jobs:
     permissions:
       contents: write
     runs-on: ubuntu-22.04
+    env:
+      # ccache 配置
+      CCACHE_DIR: ${{ github.workspace }}/.ccache
+      CCACHE_MAXSIZE: 2G
+      # pip 缓存目录
+      PIP_CACHE_DIR: ${{ github.workspace }}/.pip-cache
     steps:
       - name: checkout
         uses: actions/checkout@v4
+      
+      - name: Restore pip cache
+        uses: actions/cache@v4
+        with:
+          path: .pip-cache
+          key: pip-${{ runner.os }}-cache
+          restore-keys: |
+            pip-${{ runner.os }}-
+
+      - name: Restore apt cache
+        uses: actions/cache@v4
+        with:
+          path: /var/cache/apt/archives
+          key: apt-${{ runner.os }}-cache
+          restore-keys: |
+            apt-${{ runner.os }}-
         
       - name: Install dependencies
         shell: bash
